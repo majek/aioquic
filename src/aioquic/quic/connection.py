@@ -302,9 +302,13 @@ class QuicConnection:
         self._events: Deque[events.QuicEvent] = deque()
         self._handshake_complete = False
         self._handshake_confirmed = False
+
+        cid = configuration.gen_connection_id() if configuration.gen_connection_id else os.urandom(configuration.connection_id_length)
+        assert (len(cid) == configuration.connection_id_length), "cid length doesn't match connection_id_length"
+
         self._host_cids = [
             QuicConnectionId(
-                cid=os.urandom(configuration.connection_id_length),
+                cid=cid,
                 sequence_number=0,
                 stateless_reset_token=os.urandom(16) if not self._is_client else None,
                 was_sent=True,
@@ -339,8 +343,12 @@ class QuicConnection:
         self._network_paths: List[QuicNetworkPath] = []
         self._pacing_at: Optional[float] = None
         self._packet_number = 0
+        self._parameters_received = False
+
+        cid = configuration.gen_connection_id() if configuration.gen_connection_id else os.urandom(configuration.connection_id_length)
+
         self._peer_cid = QuicConnectionId(
-            cid=os.urandom(configuration.connection_id_length), sequence_number=None
+            cid=cid, sequence_number=None
         )
         self._peer_cid_available: List[QuicConnectionId] = []
         self._peer_cid_sequence_numbers: Set[int] = set([0])
@@ -2643,9 +2651,11 @@ class QuicConnection:
         Generate new connection IDs.
         """
         while len(self._host_cids) < min(8, self._remote_active_connection_id_limit):
+            cid = self.configuration.gen_connection_id() if self.configuration.gen_connection_id else os.urandom(self.configuration.connection_id_length)
+
             self._host_cids.append(
                 QuicConnectionId(
-                    cid=os.urandom(self._configuration.connection_id_length),
+                    cid=cid,
                     sequence_number=self._host_cid_seq,
                     stateless_reset_token=os.urandom(16),
                 )

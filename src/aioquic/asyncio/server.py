@@ -173,6 +173,7 @@ async def serve(
     session_ticket_handler: Optional[SessionTicketHandler] = None,
     retry: bool = False,
     stream_handler: QuicStreamHandler = None,
+    sock = None,
 ) -> QuicServer:
     """
     Start a QUIC server at the given `host` and `port`.
@@ -210,6 +211,7 @@ async def serve(
             retry=retry,
             stream_handler=stream_handler,
         ),
-        local_addr=(host, port),
+        local_addr=(host, port) if sock is None else None,
+        sock=sock,
     )
     return protocol

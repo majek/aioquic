@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from os import PathLike
 from re import split
-from typing import Any, List, Optional, TextIO, Union
+from typing import Any, List, Optional, TextIO, Union, Callable
 
 from ..tls import (
     CipherSuite,
@@ -36,6 +36,11 @@ class QuicConfiguration:
     connection_id_length: int = 8
     """
     The length in bytes of local connection IDs.
+    """
+
+    gen_connection_id: Optional[Callable[[], bytes]] =None
+    """
+    Callback to generate connection id.
     """
 
     idle_timeout: float = 60.0
