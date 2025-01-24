@@ -1905,6 +1905,7 @@ class Context:
                 AlertHandshakeFailure("No common ALPN protocols"),
             )
 
+        self.client_server_name = peer_hello.server_name
         self.client_random = peer_hello.random
         self.server_random = os.urandom(32)
         self.legacy_session_id = peer_hello.legacy_session_id
